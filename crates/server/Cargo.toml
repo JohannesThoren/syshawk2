@@ -1,0 +1,27 @@
+[package]
+name = "shawk-server"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+shawk-common = { path = "../common" }
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+chrono.workspace = true
+uuid.workspace = true
+anyhow.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+axum = { version = "0.7", features = ["ws"] }
+tower-http = { version = "0.6", features = ["cors", "trace"] }
+sqlx = { version = "0.8", features = ["runtime-tokio", "postgres", "chrono", "uuid", "json"] }
+sha2 = "0.10"
+rand = "0.8"
+hex = "0.4"
+pam = "0.8"
+users = "0.11"
+axum-extra = { version = "0.9", features = ["cookie"] }
+time = "0.3"
+futures = "0.3"
+tokio-stream = "0.1"

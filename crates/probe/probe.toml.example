@@ -1,0 +1,5 @@
+# Copy to probe.toml (or pass a different path as argv[1]) next to the binary.
+server_url = "https://monitor.lgjt.xyz"
+token = "REPLACE_WITH_TOKEN_FROM_REGISTRATION"
+interval_secs = 5
+top_processes = 15

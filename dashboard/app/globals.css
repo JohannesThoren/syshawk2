@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #0f1319;
+  --surface: #161c25;
+  --surface-raised: #1c2330;
+  --border: #262f3d;
+  --text: #e6ecf3;
+  --text-muted: #7c8798;
+  --text-faint: #4f596b;
+
+  --status-online: #3ecf8e;
+  --status-online-dim: #1c3d30;
+  --status-offline: #e4573d;
+  --status-offline-dim: #3d2420;
+  --status-pending: #d9a441;
+  --status-pending-dim: #3a3122;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-text-faint: var(--text-faint);
+  --color-online: var(--status-online);
+  --color-offline: var(--status-offline);
+  --color-pending: var(--status-pending);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+}
+
+* {
+  border-color: var(--border);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-faint);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}

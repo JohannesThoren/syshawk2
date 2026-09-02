@@ -1,0 +1,19 @@
+[Unit]
+Description=Shawk monitoring probe
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/opt/shawk/shawk-probe /opt/shawk/probe
+WorkingDirectory=/opt/shawk
+Restart=always
+RestartSec=5
+User=shawk
+Group=shawk
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadOnlyPaths=/proc /sys
+
+[Install]
+WantedBy=multi-user.target
