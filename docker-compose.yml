@@ -54,7 +54,7 @@ services:
     depends_on:
       - server
     ports:
-      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:3030:3000"
 
 volumes:
   shawk-db:
