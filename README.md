@@ -52,6 +52,18 @@ sudo groupadd syshawk        # first time only
 sudo usermod -aG syshawk someuser
 ```
 
+**If running via Docker Compose, restart the `server` container after any
+change to `/etc/passwd`, `/etc/group`, or `/etc/shadow`** - `groupadd`/
+`usermod` write a new file and atomically swap it in rather than editing
+in place, and Docker's per-file bind mount keeps pointing at the old
+file's inode from when the container started. Until you restart, the
+container won't see the change (you'll see `group does not exist on
+this host` in the server logs if this happens):
+
+```bash
+docker compose restart server
+```
+
 Sessions are in-memory and cookie-based (12h expiry); restarting
 `shawk-server` logs everyone out.
 
