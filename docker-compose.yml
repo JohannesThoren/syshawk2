@@ -1,0 +1,60 @@
+services:
+  db:
+    image: timescale/timescaledb:latest-pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: shawk
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: shawk
+    volumes:
+      - shawk-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shawk -d shawk"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  server:
+    build:
+      context: .
+      dockerfile: crates/server/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://shawk:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db:5432/shawk
+      ADMIN_TOKEN: ${ADMIN_TOKEN:?set ADMIN_TOKEN in .env}
+      DASHBOARD_GROUP: ${DASHBOARD_GROUP:-syshawk}
+      BIND_ADDR: 0.0.0.0:8080
+      RUST_LOG: info
+    ports:
+      - "127.0.0.1:8080:8080"
+    # Dashboard login authenticates against the HOST's Linux accounts, so
+    # the container needs the host's user/group/shadow databases and PAM
+    # config mounted in read-only, plus permission to read shadow entries.
+    volumes:
+      - /etc/passwd:/etc/passwd:ro
+      - /etc/group:/etc/group:ro
+      - /etc/shadow:/etc/shadow:ro
+      - /etc/gshadow:/etc/gshadow:ro
+      - /etc/pam.d:/etc/pam.d:ro
+      - /etc/nsswitch.conf:/etc/nsswitch.conf:ro
+    group_add:
+      - shadow
+
+  dashboard:
+    build:
+      context: ./dashboard
+      args:
+        # Must be reachable from the *browser*, not from inside the
+        # compose network - see the README note on same-origin cookies.
+        NEXT_PUBLIC_API_URL: ${PUBLIC_API_URL:-http://localhost:8080}
+    restart: unless-stopped
+    depends_on:
+      - server
+    ports:
+      - "127.0.0.1:3000:3000"
+
+volumes:
+  shawk-db:

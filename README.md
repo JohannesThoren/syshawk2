@@ -65,7 +65,38 @@ server, you can open a shell on it. There's currently no separate
 per-server permission tier; anyone in the `syshawk` group can shell into
 any monitored machine.
 
-## Running it locally
+## Running it with Docker Compose
+
+This is the easiest way to run the server + dashboard together, and is
+close to how this is meant to be deployed on a real box.
+
+```bash
+cp .env.example .env
+# edit .env: set POSTGRES_PASSWORD, ADMIN_TOKEN (openssl rand -hex 32),
+# DASHBOARD_GROUP, and PUBLIC_API_URL (see the comments in .env.example -
+# PUBLIC_API_URL must be reachable from the *browser*, not just the
+# compose network)
+
+docker compose up -d --build
+```
+
+This starts three containers: `db` (Postgres + TimescaleDB, migrations
+run automatically), `server`, and `dashboard`. The dashboard is on
+`:3000`, the API on `:8080` (both bound to `127.0.0.1` by default - put
+your reverse proxy in front for real access).
+
+**Dashboard login requires the `server` container to read the host's
+`/etc/passwd`/`/etc/shadow`/`/etc/group`/`/etc/pam.d`**, which
+`docker-compose.yml` already mounts in read-only, plus adds the container
+to the host's `shadow` group so it can actually read shadow entries. This
+means `docker compose` needs to run as a user that can add that group
+mapping (root, or rootless Docker configured accordingly) - same
+constraint as running `shawk-server` directly, just via a bind mount
+instead of `SupplementaryGroups=`.
+
+Register a probe the same way as below, against `http://<host>:8080`.
+
+## Running it without Docker
 
 ### 1. Postgres + TimescaleDB
 
@@ -137,5 +168,3 @@ Log in with any account on the server's host that's a member of the
   open a shell on any monitored server.
 - Terminal session audit log (who opened a shell on what, when).
 - Admin UI for registering probes (it's a raw curl call right now).
-- Docker Compose stack for the server + dashboard (matches how the rest
-  of tellus is deployed) — worth adding next.

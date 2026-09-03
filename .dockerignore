@@ -1,0 +1,5 @@
+target
+dashboard/node_modules
+dashboard/.next
+.git
+.env

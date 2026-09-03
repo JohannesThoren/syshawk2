@@ -1,17 +1,28 @@
 import type { Metadata } from "next";
-import { Manrope, IBM_Plex_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const sans = Manrope({
+// Self-hosted (not next/font/google) so the Docker build never depends on
+// reaching fonts.googleapis.com/gstatic.com - one less thing that can fail
+// behind a restrictive network or offline build environment.
+const sans = localFont({
   variable: "--font-sans",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  src: [
+    { path: "./fonts/manrope-400.ttf", weight: "400", style: "normal" },
+    { path: "./fonts/manrope-500.ttf", weight: "500", style: "normal" },
+    { path: "./fonts/manrope-600.ttf", weight: "600", style: "normal" },
+    { path: "./fonts/manrope-700.ttf", weight: "700", style: "normal" },
+    { path: "./fonts/manrope-800.ttf", weight: "800", style: "normal" },
+  ],
 });
 
-const mono = IBM_Plex_Mono({
+const mono = localFont({
   variable: "--font-mono",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  src: [
+    { path: "./fonts/ibm-plex-mono-400.ttf", weight: "400", style: "normal" },
+    { path: "./fonts/ibm-plex-mono-500.ttf", weight: "500", style: "normal" },
+    { path: "./fonts/ibm-plex-mono-600.ttf", weight: "600", style: "normal" },
+  ],
 });
 
 export const metadata: Metadata = {
