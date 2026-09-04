@@ -3,3 +3,7 @@ server_url = "https://monitor.lgjt.xyz"
 token = "REPLACE_WITH_TOKEN_FROM_REGISTRATION"
 interval_secs = 5
 top_processes = 15
+# Shell for remote terminal sessions. Defaults to /bin/bash - deliberately
+# NOT read from $SHELL, since systemd sets that from the service account's
+# passwd entry, which is typically a locked-down /usr/sbin/nologin.
+# shell = "/bin/bash"

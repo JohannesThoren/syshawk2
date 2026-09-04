@@ -8,16 +8,16 @@ use tracing::{error, info, warn};
 /// Keeps a persistent websocket open to the server so it can push
 /// `OpenTerminal` requests down to us on demand. Reconnects with a fixed
 /// backoff if the connection drops.
-pub async fn run(ws_base: String, token: String) {
+pub async fn run(ws_base: String, token: String, shell: String) {
     loop {
-        if let Err(e) = connect_once(&ws_base, &token).await {
+        if let Err(e) = connect_once(&ws_base, &token, &shell).await {
             warn!(error = %e, "probe control connection lost, retrying");
         }
         tokio::time::sleep(Duration::from_secs(5)).await;
     }
 }
 
-async fn connect_once(ws_base: &str, token: &str) -> anyhow::Result<()> {
+async fn connect_once(ws_base: &str, token: &str, shell: &str) -> anyhow::Result<()> {
     let url = format!("{}/api/probe/control?token={}", ws_base, token);
     let (ws_stream, _) = tokio_tungstenite::connect_async(url).await?;
     info!("probe control channel connected");
@@ -34,9 +34,10 @@ async fn connect_once(ws_base: &str, token: &str) -> anyhow::Result<()> {
                     }) => {
                         let ws_base = ws_base.to_string();
                         let token = token.to_string();
+                        let shell = shell.to_string();
                         tokio::spawn(async move {
                             if let Err(e) = terminal::open_terminal_session(
-                                &ws_base, &token, session_id, cols, rows,
+                                &ws_base, &token, session_id, cols, rows, &shell,
                             )
                             .await
                             {

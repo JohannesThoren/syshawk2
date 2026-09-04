@@ -164,6 +164,21 @@ journalctl -u shawk-probe -f    # watch its logs
 Repeat on every server you want to monitor - each one needs its own
 probe registered (step 3) with its own token.
 
+**Remote terminal shell:** by default the probe starts `/bin/bash` for
+terminal sessions, regardless of the service account's own login shell.
+This is intentional - `install-probe.sh` creates the `shawk` account with
+`/usr/sbin/nologin` as a security precaution (it shouldn't be a normal
+login account), but systemd still sets `$SHELL` and `$HOME` for the
+service from that account's passwd entry, and both would otherwise break
+an interactive shell (nologin can't run one; a `--no-create-home` account
+has no `$HOME` directory to start in, which crashes the PTY spawn
+entirely). The probe explicitly overrides both rather than trusting them.
+If you want a different shell, set it in `probe.toml`:
+
+```toml
+shell = "/usr/bin/fish"
+```
+
 For local dev/testing without installing anything system-wide, you can
 also just run it directly:
 

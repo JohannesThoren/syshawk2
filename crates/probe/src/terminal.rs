@@ -15,6 +15,7 @@ pub async fn open_terminal_session(
     session_id: Uuid,
     cols: u16,
     rows: u16,
+    shell: &str,
 ) -> anyhow::Result<()> {
     let url = format!(
         "{}/api/probe/terminal-connect?token={}&session_id={}",
@@ -31,8 +32,16 @@ pub async fn open_terminal_session(
         pixel_height: 0,
     })?;
 
-    let shell = std::env::var("SHELL").unwrap_or_else(|_| "/bin/bash".to_string());
-    let cmd = CommandBuilder::new(shell);
+    let mut cmd = CommandBuilder::new(shell);
+    // portable-pty falls back to $HOME for the child's cwd if none is set
+    // explicitly, without checking it actually exists. Under systemd,
+    // $HOME is set from the service account's passwd entry - and a
+    // dedicated service account created with --no-create-home has no such
+    // directory, which fails the spawn with ENOENT. Fall back to this
+    // process's own cwd (WorkingDirectory=/opt/shawk under the systemd
+    // unit) instead, which is guaranteed to exist.
+    let fallback_cwd = std::env::current_dir().unwrap_or_else(|_| "/".into());
+    cmd.cwd(fallback_cwd);
     let mut child = pair.slave.spawn_command(cmd)?;
     drop(pair.slave);
 

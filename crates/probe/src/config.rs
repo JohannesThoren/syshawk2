@@ -12,6 +12,13 @@ pub struct ProbeConfig {
     /// How many top processes (by CPU) to include per snapshot.
     #[serde(default = "default_top_n")]
     pub top_processes: usize,
+    /// Shell to launch for terminal sessions. Deliberately NOT derived from
+    /// $SHELL: systemd sets that env var from the service account's passwd
+    /// entry, and that account is typically given a locked-down shell like
+    /// /usr/sbin/nologin for security - which would break the terminal
+    /// feature entirely if we trusted it.
+    #[serde(default = "default_shell")]
+    pub shell: String,
 }
 
 fn default_interval() -> u64 {
@@ -20,6 +27,10 @@ fn default_interval() -> u64 {
 
 fn default_top_n() -> usize {
     15
+}
+
+fn default_shell() -> String {
+    "/bin/bash".to_string()
 }
 
 impl ProbeConfig {

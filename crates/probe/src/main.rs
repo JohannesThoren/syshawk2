@@ -27,7 +27,7 @@ async fn main() -> anyhow::Result<()> {
         .replacen("https://", "wss://", 1)
         .replacen("http://", "ws://", 1);
 
-    tokio::spawn(control::run(ws_base, cfg.token.clone()));
+    tokio::spawn(control::run(ws_base, cfg.token.clone(), cfg.shell.clone()));
 
     run_metrics_loop(cfg).await
 }
