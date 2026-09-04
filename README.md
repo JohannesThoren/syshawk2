@@ -134,23 +134,45 @@ Note: needs shadow-read access for login to work - see above.
 ### 3. Register a probe
 
 ```bash
-curl -X POST http://localhost:8080/api/probes \
+curl -X POST https://your-shawk-server/api/probes \
   -H "X-Admin-Token: pick-a-secret" \
   -H "Content-Type: application/json" \
   -d '{"name": "tellus"}'
 ```
 
-Copy the returned `token` into `probe.toml` (see
-`crates/probe/probe.toml.example`) alongside `server_url`.
+Save the returned `token` - it's shown once and isn't retrievable again.
 
-### 4. Probe
+### 4. Install the probe on the server you want to monitor
+
+On the machine you want monitored (copy or `git clone` this repo onto it
+first), run:
+
+```bash
+sudo ./deploy/install-probe.sh https://your-shawk-server <token-from-step-3>
+```
+
+This builds `shawk-probe` from source (installing Rust via rustup first
+if it's not already present), creates a dedicated `shawk` system user,
+installs the binary and config to `/opt/shawk`, and enables + starts it
+as a systemd service.
+
+```bash
+systemctl status shawk-probe    # check it's running
+journalctl -u shawk-probe -f    # watch its logs
+```
+
+Repeat on every server you want to monitor - each one needs its own
+probe registered (step 3) with its own token.
+
+For local dev/testing without installing anything system-wide, you can
+also just run it directly:
 
 ```bash
 cargo run -p shawk-probe -- crates/probe/probe
 ```
 
-For a real deployment, build a release binary and install it with
-`deploy/shawk-probe.service` (systemd).
+(reads config from `crates/probe/probe.toml` - copy
+`crates/probe/probe.toml.example` first)
 
 ### 5. Dashboard
 
